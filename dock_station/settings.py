@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'dock_station.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':'dock_station',
+        'NAME':'dock_stations',
         'USER':'postgres',
         'PASSWORD':'123',
         'HOST':'localhost'

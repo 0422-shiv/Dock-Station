@@ -1,8 +1,9 @@
-from django.conf import settings
 from django.contrib import admin
 from .models import DockStation
+from django.contrib.auth.models import Group
 
-
+admin.site.unregister(Group)
+# admin.site.register(Bicycle)
 
 
 @admin.register(DockStation)

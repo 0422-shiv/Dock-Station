@@ -112,6 +112,13 @@ class SearchView(generic.ListView):
 			query=query.annotate(distance = d).order_by('distance').filter(distance__lt =self.request.GET.get('dis'))
 
 		return query
+
+	def get_context_data(self, **kwargs) :
+		context=super().get_context_data(**kwargs)
+		context['postalcode'] =self.request.GET.get('postalcode')
+		context['dis'] = self.request.GET.get('dis')
+		context['distance'] = [1,2,3,4,5,6,7,8,9,10]
+		return context
 	
 	
 class BookingView(generic.TemplateView):

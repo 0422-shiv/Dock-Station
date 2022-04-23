@@ -31,16 +31,19 @@
           
             <div class="col-md-4">
                 <label>Enter Postcode</label>
-                <input class="form-control" type="text" name="postalcode" placeholder="Enter Posctode" required>
+                <input class="form-control" type="text" value="{{postalcode|default:''}}" name="postalcode" placeholder="Enter Posctode" required>
             </div>
             <div class="col-md-4">
                 <label>Select Mile Radius</label>
                 <select class="form-control" v-model="mile_radius" required name="dis">
-                    <option selected>Choose</option>
-                    <option value="1">1 Mile(Approx)</option>
-                    <option value="2">2 Miles(Approx)</option>
-                    <option value="7">7 Miles(Approx)</option>
-                    <option value="10">10 Miles(Approx)</option>
+                   {% for data in distance %}
+                   {% if data == dis %}
+                    <option value="1">{{data}} Mile(Approx)</option>
+                    {% else %}
+                    <option value="2">{{data}} Miles(Approx)</option>
+                    {% endif %}
+                    {% endfor %}
+                  
                 </select>
             </div>
             <div class="col-md-4">

@@ -61,11 +61,11 @@
                 </div>
                 <div class="col-md-6">
                     <label>Name</label>
-                    <input class="form-control" type="text" name="postalcode" placeholder="name" required>
+                    <input class="form-control" type="text" name="postalcode" value="{{request.user.username}}" placeholder="name" required>
                 </div>
                 <div class="col-md-6">
                     <label>Email</label>
-                    <input class="form-control" type="email" name="email" required>
+                    <input class="form-control" type="email" name="email" value="{{request.user.email}}" required>
                 </div>
                 <div class="col-md-12">
                     <label>Permanent Address</label>

@@ -1,0 +1,109 @@
+{% extends "main/home.html" %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">Bikers Den</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% block contactactive %}  {% endblock contactactive %} ">
+                <a class="nav-link" href="/contact">Contact Us</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="/bookings">Booking History</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% if user.is_authenticated %}
+    <li class="nav-item">
+        <a class="btn btn-outline-success m-2 my-sm-0" href="/logout">Logout as {{user.username}} </a>
+    </li>
+    {% endif %}
+    </div>
+</nav>
+<div id="app">
+    <div class="container">
+          <form method="GET">
+        <div class="row mt-5 pt-5">
+          
+            <div class="col-md-4">
+                <label>Enter Postcode</label>
+                <input class="form-control" type="text" name="postalcode" placeholder="Enter Posctode" required>
+            </div>
+            <div class="col-md-4">
+                <label>Select Mile Radius</label>
+                <select class="form-control" v-model="mile_radius" required name="dis">
+                    <option selected>Choose</option>
+                    <option value="1">1 Mile(Approx)</option>
+                    <option value="2">2 Miles(Approx)</option>
+                    <option value="7">7 Miles(Approx)</option>
+                    <option value="10">10 Miles(Approx)</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary mt-4" >Search</button>
+            </div>
+      
+        </div>
+          </form>
+        <div class="container">
+            <div class="row mt-5 pt-5">
+                {% for data in dock_stations %}
+                <div class="col-sm col-xs-4" v-for="dockstation in dockstations"><br>
+                    <div class="card" style="width: 18rem;">
+                        <img src="{{data.image}}" class="card-img-top" style="height:200px">
+                        <div class="card-body">
+                            <h5 class="card-title">{{data.name}} </h5>
+                            <p class="card-text">{{data.landmark}} </p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% if dockstation.distance %}
+                            <li class="list-group-item"><strong>{{dockstation.distance}} Miles Away!</strong></li>
+                            {% endif %}
+                            <li class="list-group-item">Address:-{{data.address}} </li>
+                            <li class="list-group-item">PostCode:-{{data.postcode}} </li>
+                               <li class="list-group-item">{{data.bikes_availible}} available</li>
+                        </ul>
+                        <div class="card-body">
+                            <a href="{% url 'main:bookings' data.id %}" class="btn btn-primary" style="margin-left: 64px;">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<br><br>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script>
+    const app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        data() {
+            return {
+                postcode : '',
+                mile_radius : '',
+                tasks: [],
+                dockstations : []
+            }
+        },
+        
+        created() {
+            this.tasks = ['do this 🐱‍🐉', 'and that 🤳'];
+        },
+        methods : {
+            getRest(){         
+                fetch(`/search/get/?postcode=${this.postcode}&mile_radius=${this.mile_radius}`)
+                .then(result => result.json())
+                .then(response => {
+                    this.dockstations = response
+                })
+            }
+        }
+    });
+</script> -->
+{% endblock %}

@@ -18,6 +18,7 @@ urlpatterns = [
     path('search/' , views.SearchView.as_view() , name="search"),
     path("bookings/<int:id>", views.BookingView.as_view(), name="bookings"),
     path("payment", views.Payment.as_view(), name="payment"),
+    path("drop", views.DropBicycleView.as_view(), name="drop_bicycle"),
 
 
 

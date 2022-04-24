@@ -9,12 +9,12 @@ admin.site.register(Booking)
 
 @admin.register(DockStation)
 class DockStationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address','postcode','landmark','image','total_docks','bikes_availible','dropoff_docks','latitude', 'longitude',)
+    list_display = ('name', 'address','postcode','landmark','latitude', 'longitude','image',)
     search_fields = ('postcode',)
 
     fieldsets = (
         (None, {
-            'fields': ( 'name', 'address','postcode','landmark','image','total_docks','bikes_availible','dropoff_docks','bicycle','latitude', 'longitude',)
+            'fields': ( 'name', 'address','postcode','landmark','image','bicycle','latitude', 'longitude',)
         }),
     )
 

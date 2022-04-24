@@ -45,6 +45,8 @@ class Booking(models.Model):
     status = models.BooleanField(default=False)
     stripe_payment_intent =  models.CharField(max_length=255,null=True,blank=True)
     bicycle_drop_status =  models.BooleanField(default=False)
+    booking_date = models.DateTimeField(auto_now_add=True, null=True)
+    drop_datetime= models.DateTimeField(null=True)
     
     def __str__(self) -> str:
         return self.booking_postcode

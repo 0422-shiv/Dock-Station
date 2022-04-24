@@ -14,6 +14,11 @@
             <li class="nav-item">
                 <a class="nav-link" href="/bookings">Booking History</a>
             </li>
+                {% if request.user|check_booking_status %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'main:drop_bicycle'  %}?id={{request.user|booking_id}}">Drop Bicycle</a>
+            </li> 
+            {% endif %}
             {% endif %}
         </ul>
     </div>
@@ -38,9 +43,9 @@
                 <select class="form-control" v-model="mile_radius" required name="dis">
                    {% for data in distance %}
                    {% if data == dis %}
-                    <option value="1">{{data}} Mile(Approx)</option>
+                    <option value="{{data}}" selected>{{data}} Mile(Approx)</option>
                     {% else %}
-                    <option value="2">{{data}} Miles(Approx)</option>
+                    <option value="{{data}}">{{data}} Miles(Approx)</option>
                     {% endif %}
                     {% endfor %}
                   
@@ -71,7 +76,11 @@
                                <li class="list-group-item">{{data.bicycle.count}} available</li>
                         </ul>
                         <div class="card-body">
+                         {% if request.user|check_booking_status %}
+                            <a href="javascript:void(0)" onclick="dropoff()" class="btn btn-primary" style="margin-left: 64px;">Book Now</a>
+                            {% else %}
                             <a href="{% url 'main:bookings' data.id %}" class="btn btn-primary" style="margin-left: 64px;">Book Now</a>
+                        {% endif %}
                         </div>
                     </div>
                 </div>
@@ -81,6 +90,12 @@
     </div>
 </div>
 <br><br>
+  <script>
+    
+    function dropoff(){
+      alert("Drop off first for next booking")
+    }
+  </script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 <script>
     const app = new Vue({

@@ -1,3 +1,4 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import  render, redirect
 from .forms import NewUserForm,AuthenticationForm
 from django.contrib.auth import login, authenticate,logout
@@ -124,7 +125,7 @@ class SearchView(generic.ListView):
 	def get_context_data(self, **kwargs) :
 		context=super().get_context_data(**kwargs)
 		context['postalcode'] =self.request.GET.get('postalcode')
-		context['dis'] = self.request.GET.get('dis')
+		context['dis'] = int(self.request.GET.get('dis',1))
 		context['distance'] = [1,2,3,4,5,6,7,8,9,10]
 		return context
 	
@@ -204,6 +205,36 @@ class Payment(generic.View):
 @register.filter(name='check_booking_status')
 def check_booking_status(user):
     status = False
-    if Booking.objects.filter(bicycle_drop_status=False).filter(user=user).exist():
+    if Booking.objects.filter(bicycle_drop_status=False).filter(user=user).exists():
         status =True
     return status
+
+@register.filter(name='booking_id')
+def booking_id(user):
+    if Booking.objects.filter(bicycle_drop_status=False).filter(user=user).exists():
+        ins=Booking.objects.get(bicycle_drop_status=False,user=user)
+    return ins.id
+
+@method_decorator(login_required(login_url='/'), name='dispatch')	
+class DropBicycleView(generic.TemplateView):
+	template_name = 'main/drop-bicycle.html'
+
+	def get(self,request):
+	
+		instance=Booking.objects.get(id=request.GET.get('id'))
+		address= DockStation.objects.values_list('address',flat=True)
+		return render(request,self.template_name,{'now':now,'current_time':current_time,'instance':instance,'address':address})
+
+	def post(self,request):
+		instance=Booking.objects.get(id=request.GET.get('id'))
+		booking_to=request.POST.get('booking_to')
+		instance.booking_to=booking_to
+		instance.bicycle_drop_status = True
+		instance.drop_datetime = now
+		instance.save()
+		station=DockStation.objects.get(address=booking_to)
+		bicycle = [data.id for data in station.bicycle.all()]
+		bicycle.append(station.id)
+		station.bicycle.set(bicycle)
+		messages.success(request,f'Bicycle successfully dropped at {booking_to}')
+		return HttpResponseRedirect(reverse('main:search'))

@@ -12,9 +12,16 @@ from django.views import generic
 from django.db.models.functions import Radians, Power, Sin, Cos, ATan2, Sqrt, Radians
 from django.db.models import F
 from datetime import datetime
+from .models import Booking
+import stripe
+from dock_station import settings
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.template.defaulttags import register
 
 now = datetime.now()
-
+current_time = now.strftime("%H:%M")
 # Create your views here.
 
 @csrf_protect
@@ -87,13 +94,14 @@ def signin_request(request):
 
 
 @csrf_protect
+@method_decorator(login_required(login_url='/'), name='dispatch')
 def logout_request(request):
     logout(request)
     messages.success(request, "Successfully logged out")
     return redirect("main:homepage")
 
 
-
+@method_decorator(login_required(login_url='/'), name='dispatch')
 class SearchView(generic.ListView):
 	template_name = 'main/postcodesearch.html'
 	context_object_name='dock_stations'
@@ -120,22 +128,82 @@ class SearchView(generic.ListView):
 		context['distance'] = [1,2,3,4,5,6,7,8,9,10]
 		return context
 	
-	
+@method_decorator(login_required(login_url='/'), name='dispatch')	
 class BookingView(generic.TemplateView):
 	template_name = 'main/bookings.html'
 
 	def get(self,request,id):
 		instance=DockStation.objects.get(id=id)
 		address= DockStation.objects.values_list('address',flat=True)
-		current_time = now.strftime("%H:%M")
+		
+		bicycle=instance.bicycle.first()
 		return render(request,self.template_name,{'current_time':current_time,
-      'instance':instance,'address':address})
+      'instance':instance,'address':address,'bicycle':bicycle})
+
+@method_decorator(login_required(login_url='/'), name='dispatch')
+class Payment(generic.View):
+      
+		def post(self, request, *args, **kwargs): 
+			address = request.POST.get('address')
+			email = request.POST.get('email')
+			booking_to = request.POST.get('booking_to')
+			leave_time = request.POST.get('leave_time')
+			station_id = request.POST.get('station_id')
+			station=DockStation.objects.get(id=station_id)
+			booking=Booking(booking_postcode=station.postcode,Charges=120,booking_from=station.address,
+                         booking_to=booking_to,booking_time=current_time,leave_time=leave_time,email=email,
+                         user_address=address,user=request.user )
+		
+			stripe.api_key = settings.STRIPE_SECRET_KEY
+			checkout_session = stripe.checkout.Session.create(
+			           customer_email = email,
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price_data': {
+                            'currency': 'inr',
+                            'product_data': {
+                            'name':'Plan ',
+                            },
+                            'unit_amount': int((120)*100),
+                        },
+                        'quantity': 1,
+                    }
+                ],
+                mode='payment',
+				success_url=request.build_absolute_uri(reverse('main:search') ) + "?session_id={CHECKOUT_SESSION_ID}",
+				cancel_url=request.build_absolute_uri(reverse('main:search')),
+				) 
+			booking.stripe_payment_intent=checkout_session["payment_intent"]
+			booking.status=True
+			booking.bicycle=station.bicycle.first()
+			station.bicycle.remove(station.bicycle.first())
+			booking.save()
+			
+				
+			return redirect(checkout_session["url"])
+
+    #Testing card number
+    
+#     NUMBER         BRAND                            CVC   
+# 4242424242424242	Visa	                    Any 3 digits	
+# 4000056655665556	Visa (debit)	            Any 3 digits	
+# 5555555555554444	Mastercard	                Any 3 digits	
+# 2223003122003222	Mastercard (2-series)	    Any 3 digits	
+# 5105105105105100	Mastercard (prepaid)	    Any 3 digits	
+# 378282246310005	    American Express	         Any 4 digits
+# 371449635398431	    American Express	        Any 4 digits
+# 6011111111111117	Discover	                Any 3 digits	
+# 6011000990139424	Discover	                Any 3 digits	
+# 3056930009020004	Diners Club	                Any 3 digits	
+# 36227206271667	     Diners Club(14 digit card) Any 3 digits	
+# 3566002020360505	JCB	                       Any 3 digits	
+# 6200000000000005	UnionPay	                Any 3 digits	
 
 
-
-
-# def bookings(request):
-# 	return render(request,'main/bookings.html')
-
-# def bikeavailibility(request):
-#     return render(request,'main/bookings.html')
+@register.filter(name='check_booking_status')
+def check_booking_status(user):
+    status = False
+    if Booking.objects.filter(bicycle_drop_status=False).filter(user=user).exist():
+        status =True
+    return status

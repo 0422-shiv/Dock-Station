@@ -26,7 +26,8 @@
 </nav>
 <div id="app">
     <div class="container">
-        <form>
+        <form method="POST" action="{% url 'main:payment' %}">
+            {% csrf_token %}
             {% comment %} <div>
                 <h5>{{instance.name}}</h5></br>
             </div> {% endcomment %}
@@ -37,7 +38,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>Charges</label>
-                    <input class="form-control" readonly type="text" value="10 paise/minute" required>
+                    <input class="form-control" readonly type="text" value="120 rupees/day" required>
                 </div>
                 <div class="col-md-6">
                     <label>From</label>
@@ -45,36 +46,41 @@
                 </div>
                 <div class="col-md-6">
                     <label>To</label>
-                    <select class="form-control" v-model="mile_radius" required name="dis">
+                    <select class="form-control" v-model="mile_radius" required name="booking_to">
                         {% for data in address %}
-                        <option >{{data}}</option>
+                        <option>{{data}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-6">
                     <label>Book Time</label>
-                    <input class="form-control" type="time"  value="{{current_time}}" name="postalcode" placeholder="Enter Posctode" required>
+                    <input class="form-control" type="time" value="{{current_time}}" name="postalcode" placeholder="Enter Posctode" required>
                 </div>
                 <div class="col-md-6">
                     <label>Check out Time </label>
-                    <input class="form-control" type="time" name="postalcode" required>
+                    <input class="form-control" type="time" name="leave_time" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Bicycle</label>
+                    <input class="form-control" type="text" readonly value="{{bicycle}}" placeholder="name" required>
                 </div>
                 <div class="col-md-6">
                     <label>Name</label>
-                    <input class="form-control" type="text" name="postalcode" value="{{request.user.username}}" placeholder="name" required>
+                    <input class="form-control" type="text" readonly value="{{request.user.username}}" placeholder="name" required>
                 </div>
                 <div class="col-md-6">
                     <label>Email</label>
                     <input class="form-control" type="email" name="email" value="{{request.user.email}}" required>
                 </div>
-                <div class="col-md-12">
-                    <label>Permanent Address</label>
-                    <textarea class="form-control" type="text" name="a" placeholder="address" required></textarea>
-                </div>
-        
                 <div class="col-md-6">
-                    <button class="btn btn-primary mt-4" style="float: right;">Continue</button>
+                    <label>Permanent Address</label>
+                    <textarea row="1" class="form-control" type="text" name="address" placeholder="address" required></textarea>
                 </div>
+                <input type="hidden" name="station_id" value="{{instance.id}}">
+                <div class="col-md-6" style="margin-left: 72px;"> 
+                    <button class="btn btn-primary mt-4" style="float: right;">Continue & Pay</button>
+                </div>
+                <p>Note:-Please drop bicycle on time otherwise team will contact you or may be take action.</p>
             </div>
         </form>
     </div>

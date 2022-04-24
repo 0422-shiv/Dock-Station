@@ -17,8 +17,8 @@ urlpatterns = [
     
     path('search/' , views.SearchView.as_view() , name="search"),
     path("bookings/<int:id>", views.BookingView.as_view(), name="bookings"),
-    # path('postcodesearch/',views.postcodesearch,name = 'postcodesearch'),
-    # path("bikeavailibility/", views.bikeavailibility, name="bikeavailibility"),
+    path("payment", views.Payment.as_view(), name="payment"),
+
 
 
 ]

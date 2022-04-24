@@ -68,7 +68,7 @@
                             {% endif %}
                             <li class="list-group-item">Address:-{{data.address}} </li>
                             <li class="list-group-item">PostCode:-{{data.postcode}} </li>
-                               <li class="list-group-item">{{data.bikes_availible}} available</li>
+                               <li class="list-group-item">{{data.bicycle.count}} available</li>
                         </ul>
                         <div class="card-body">
                             <a href="{% url 'main:bookings' data.id %}" class="btn btn-primary" style="margin-left: 64px;">Book Now</a>
